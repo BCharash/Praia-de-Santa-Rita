@@ -50,14 +50,44 @@ h1 {
 
 .header-right {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
 }
 
 .beach-name {
   font-size: 0.85rem;
   color: var(--text-dim);
+}
+
+/* Settings Gear Button */
+.settings-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-dim);
+  padding: 4px 6px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.settings-btn:hover {
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  background: rgba(72, 202, 228, 0.1);
+}
+
+.settings-icon {
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.settings-btn:hover .settings-icon {
+  transform: rotate(45deg);
 }
 
 /* PT / EN Language Toggle Pill */
@@ -488,4 +518,130 @@ canvas {
   cursor: pointer;
   font-weight: 600;
   float: right;
+}
+
+/* Settings & Units Modal */
+.settings-modal-content {
+  max-width: 480px;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 8px;
+}
+
+.settings-header .modal-title {
+  margin-bottom: 0;
+  color: var(--accent-blue);
+}
+
+.settings-close-icon {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.2s ease;
+}
+
+.settings-close-icon:hover {
+  color: var(--text-main);
+}
+
+.settings-desc {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+
+.settings-group {
+  margin-bottom: 14px;
+}
+
+.settings-label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  color: var(--text-sub);
+  margin-bottom: 6px;
+}
+
+.unit-toggle-group {
+  display: flex;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.unit-opt {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  padding: 6px 4px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.unit-opt.active {
+  background: var(--accent-blue);
+  color: #0b132b;
+  font-weight: 700;
+}
+
+.unit-opt:hover:not(.active) {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.settings-info-box {
+  background: rgba(11, 19, 43, 0.6);
+  border: 1px dashed var(--card-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 14px;
+}
+
+.settings-info-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-air);
+  margin-bottom: 6px;
+}
+
+.settings-info-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  align-items: center;
+}
+
+.settings-info-grid strong {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.settings-footer {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
 }

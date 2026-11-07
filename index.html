@@ -24,6 +24,12 @@
       <button class="lang-toggle" id="lang-toggle-btn" aria-label="Toggle language">
         <span id="lang-pt">PT</span> | <span id="lang-en">EN</span>
       </button>
+      <button class="settings-btn" id="settings-btn" aria-label="Unit Settings" title="Unit Settings">
+        <svg class="settings-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
     </div>
   </header>
 
@@ -122,6 +128,70 @@
         Loading IPMA advisories...
       </div>
       <button class="modal-close-btn" id="modal-close-btn">Close</button>
+    </div>
+  </div>
+
+  <!-- Settings & Units Modal Overlay -->
+  <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="modal-settings-title">
+    <div class="modal-content settings-modal-content">
+      <div class="settings-header">
+        <h2 class="modal-title" id="modal-settings-title">Settings & Units</h2>
+        <button class="settings-close-icon" id="settings-close-icon" aria-label="Close settings">&times;</button>
+      </div>
+      <div class="settings-body">
+        <p class="settings-desc" id="settings-desc">Select display units for coastal and atmospheric parameters:</p>
+
+        <div class="settings-group">
+          <label class="settings-label" id="lbl-setting-temp">Temperature (Air & Sea)</label>
+          <div class="unit-toggle-group">
+            <button class="unit-opt active" data-unit-type="temperature" data-unit-val="C">°C (Celsius)</button>
+            <button class="unit-opt" data-unit-type="temperature" data-unit-val="F">°F (Fahrenheit)</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label class="settings-label" id="lbl-setting-wind">Wind Speed & Gusts</label>
+          <div class="unit-toggle-group">
+            <button class="unit-opt active" data-unit-type="windSpeed" data-unit-val="kmh">km/h</button>
+            <button class="unit-opt" data-unit-type="windSpeed" data-unit-val="kt">knots (kt)</button>
+            <button class="unit-opt" data-unit-type="windSpeed" data-unit-val="mph">mph</button>
+            <button class="unit-opt" data-unit-type="windSpeed" data-unit-val="ms">m/s</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label class="settings-label" id="lbl-setting-wave">Surf / Wave Height</label>
+          <div class="unit-toggle-group">
+            <button class="unit-opt active" data-unit-type="waveHeight" data-unit-val="m">m (meters)</button>
+            <button class="unit-opt" data-unit-type="waveHeight" data-unit-val="ft">ft (feet)</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label class="settings-label" id="lbl-setting-tide">Tide Level</label>
+          <div class="unit-toggle-group">
+            <button class="unit-opt active" data-unit-type="tideHeight" data-unit-val="m">m (ZH)</button>
+            <button class="unit-opt" data-unit-type="tideHeight" data-unit-val="ft">ft (ZH)</button>
+          </div>
+        </div>
+
+        <div class="settings-info-box">
+          <div class="settings-info-title" id="settings-info-title">Fixed Reference Units</div>
+          <div class="settings-info-grid">
+            <span id="lbl-ref-humidity">Humidity:</span>
+            <strong>% (RH)</strong>
+            <span id="lbl-ref-uv">UV Index:</span>
+            <strong>WHO Index (0–11+)</strong>
+            <span id="lbl-ref-period">Wave Period:</span>
+            <strong>seconds (s)</strong>
+            <span id="lbl-ref-datum">Chart Datum:</span>
+            <strong>Hydrographic Zero (+2.08 m)</strong>
+          </div>
+        </div>
+      </div>
+      <div class="settings-footer">
+        <button class="modal-close-btn" id="settings-close-btn">Done</button>
+      </div>
     </div>
   </div>
 

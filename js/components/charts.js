@@ -5,6 +5,12 @@
 import { getTranslations } from '../i18n.js';
 import { decodeWMO } from '../utils/meteorology.js';
 import { TIME_FILTERS, BEACH_CONFIG } from '../config.js';
+import {
+  convertTemperature,
+  convertWindSpeed,
+  convertHeight,
+  getUnitSymbol
+} from '../utils/units.js';
 
 let chart1Instance = null;
 let chart2Instance = null;
@@ -186,6 +192,27 @@ export function updateCharts({
   const l = getTranslations(lang).legend;
   const isMultiDay = [TIME_FILTERS.PAST_3D, TIME_FILTERS.NEXT_3D, TIME_FILTERS.NEXT_7D].includes(currentFilter);
 
+  // Unit symbols
+  const tempUnit = getUnitSymbol('temperature');
+  const windUnit = getUnitSymbol('windSpeed');
+  const waveUnit = getUnitSymbol('waveHeight');
+  const tideUnit = getUnitSymbol('tideHeight');
+
+  // Convert dataset values
+  const convertedAirTemps = airTemps.map(v => Math.round(convertTemperature(v) * 10) / 10);
+  const convertedWindSpeeds = windSpeeds.map(v => Math.round(convertWindSpeed(v) * 10) / 10);
+  const convertedWindGusts = windGusts.map(v => Math.round(convertWindSpeed(v) * 10) / 10);
+  const convertedSeaTemps = seaTemps.map(v => Math.round(convertTemperature(v) * 10) / 10);
+  const convertedWaveHeights = waveHeights.map(v => Math.round(convertHeight(v) * 10) / 10);
+  const convertedTides = tides.map(v => Math.round(convertHeight(v) * 100) / 100);
+
+  const labelAirTemp = `${l.airTemp} (${tempUnit})`;
+  const labelWindSpd = `${l.windSpd} (${windUnit})`;
+  const labelGusts = `${l.gusts} (${windUnit})`;
+  const labelWaterTemp = `${l.waterTemp} (${tempUnit})`;
+  const labelSurfHeight = `${l.surfHeight} (${waveUnit})`;
+  const labelTide = `${l.tide} (${tideUnit} ZH)`;
+
   const timeLabels = times.map(t => {
     const d = new Date(t);
     return isMultiDay
@@ -202,9 +229,9 @@ export function updateCharts({
         data: {
           labels: timeLabels,
           datasets: [
-            { label: l.airTemp, data: airTemps, borderColor: '#ffb703', tension: 0.3, yAxisID: 'y1' },
-            { label: l.windSpd, data: windSpeeds, borderColor: '#00b4d8', tension: 0.3, yAxisID: 'y2' },
-            { label: l.gusts, data: windGusts, borderColor: '#f72585', borderDash: [3, 3], tension: 0.3, yAxisID: 'y2' }
+            { label: labelAirTemp, data: convertedAirTemps, borderColor: '#ffb703', tension: 0.3, yAxisID: 'y1' },
+            { label: labelWindSpd, data: convertedWindSpeeds, borderColor: '#00b4d8', tension: 0.3, yAxisID: 'y2' },
+            { label: labelGusts, data: convertedWindGusts, borderColor: '#f72585', borderDash: [3, 3], tension: 0.3, yAxisID: 'y2' }
           ]
         },
         options: {
@@ -227,14 +254,14 @@ export function updateCharts({
               position: 'left',
               grid: { color: '#2a3a5e' },
               ticks: { color: '#ffb703', font: { size: 10 } },
-              title: { display: true, text: '°C', color: '#ffb703', font: { size: 10 } }
+              title: { display: true, text: tempUnit, color: '#ffb703', font: { size: 10 } }
             },
             y2: {
               type: 'linear',
               position: 'right',
               grid: { display: false },
               ticks: { color: '#00b4d8', font: { size: 10 } },
-              title: { display: true, text: 'km/h', color: '#00b4d8', font: { size: 10 } }
+              title: { display: true, text: windUnit, color: '#00b4d8', font: { size: 10 } }
             }
           },
           plugins: {
@@ -252,13 +279,15 @@ export function updateCharts({
       });
     } else {
       chart1Instance.data.labels = timeLabels;
-      chart1Instance.data.datasets[0].label = l.airTemp;
-      chart1Instance.data.datasets[0].data = airTemps;
-      chart1Instance.data.datasets[1].label = l.windSpd;
-      chart1Instance.data.datasets[1].data = windSpeeds;
-      chart1Instance.data.datasets[2].label = l.gusts;
-      chart1Instance.data.datasets[2].data = windGusts;
+      chart1Instance.data.datasets[0].label = labelAirTemp;
+      chart1Instance.data.datasets[0].data = convertedAirTemps;
+      chart1Instance.data.datasets[1].label = labelWindSpd;
+      chart1Instance.data.datasets[1].data = convertedWindSpeeds;
+      chart1Instance.data.datasets[2].label = labelGusts;
+      chart1Instance.data.datasets[2].data = convertedWindGusts;
       chart1Instance.options.scales.x.ticks.maxTicksLimit = isMultiDay ? 8 : 12;
+      chart1Instance.options.scales.y1.title.text = tempUnit;
+      chart1Instance.options.scales.y2.title.text = windUnit;
       chart1Instance.update();
     }
     renderCustomLegend(chart1Instance, 'legend-chart1');
@@ -273,9 +302,9 @@ export function updateCharts({
         data: {
           labels: timeLabels,
           datasets: [
-            { label: l.waterTemp, data: seaTemps, borderColor: '#4cc9f0', tension: 0.3, yAxisID: 'y1' },
-            { label: l.surfHeight, data: waveHeights, borderColor: '#f72585', borderWidth: 2.5, tension: 0.3, yAxisID: 'y2' },
-            { label: l.tide, data: tides, borderColor: '#4895ef', borderDash: [2, 2], tension: 0.4, yAxisID: 'y2' }
+            { label: labelWaterTemp, data: convertedSeaTemps, borderColor: '#4cc9f0', tension: 0.3, yAxisID: 'y1' },
+            { label: labelSurfHeight, data: convertedWaveHeights, borderColor: '#f72585', borderWidth: 2.5, tension: 0.3, yAxisID: 'y2' },
+            { label: labelTide, data: convertedTides, borderColor: '#4895ef', borderDash: [2, 2], tension: 0.4, yAxisID: 'y2' }
           ]
         },
         options: {
@@ -298,14 +327,14 @@ export function updateCharts({
               position: 'left',
               grid: { color: '#2a3a5e' },
               ticks: { color: '#4cc9f0', font: { size: 10 } },
-              title: { display: true, text: '°C', color: '#4cc9f0', font: { size: 10 } }
+              title: { display: true, text: tempUnit, color: '#4cc9f0', font: { size: 10 } }
             },
             y2: {
               type: 'linear',
               position: 'right',
               grid: { display: false },
               ticks: { color: '#f72585', font: { size: 10 } },
-              title: { display: true, text: 'm', color: '#f72585', font: { size: 10 } }
+              title: { display: true, text: waveUnit, color: '#f72585', font: { size: 10 } }
             }
           },
           plugins: {
@@ -317,13 +346,15 @@ export function updateCharts({
       });
     } else {
       chart2Instance.data.labels = timeLabels;
-      chart2Instance.data.datasets[0].label = l.waterTemp;
-      chart2Instance.data.datasets[0].data = seaTemps;
-      chart2Instance.data.datasets[1].label = l.surfHeight;
-      chart2Instance.data.datasets[1].data = waveHeights;
-      chart2Instance.data.datasets[2].label = l.tide;
-      chart2Instance.data.datasets[2].data = tides;
+      chart2Instance.data.datasets[0].label = labelWaterTemp;
+      chart2Instance.data.datasets[0].data = convertedSeaTemps;
+      chart2Instance.data.datasets[1].label = labelSurfHeight;
+      chart2Instance.data.datasets[1].data = convertedWaveHeights;
+      chart2Instance.data.datasets[2].label = labelTide;
+      chart2Instance.data.datasets[2].data = convertedTides;
       chart2Instance.options.scales.x.ticks.maxTicksLimit = isMultiDay ? 8 : 12;
+      chart2Instance.options.scales.y1.title.text = tempUnit;
+      chart2Instance.options.scales.y2.title.text = waveUnit;
       chart2Instance.update();
     }
     renderCustomLegend(chart2Instance, 'legend-chart2');

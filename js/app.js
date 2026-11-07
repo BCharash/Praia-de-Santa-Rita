@@ -18,8 +18,12 @@ import {
   updateAlertBanner,
   openAlertModal,
   closeAlertModal,
+  openSettingsModal,
+  closeSettingsModal,
+  updateUnitToggleButtons,
   setTimeFilterButtons
 } from './components/domView.js';
+import { setUnitSetting, getUnitSettings } from './utils/units.js';
 
 // Application state
 let currentFilter = TIME_FILTERS.TODAY;
@@ -144,14 +148,58 @@ function handleTimeFilter(filter) {
 }
 
 /**
+ * Handles user changing a unit option.
+ */
+function handleUnitChange(type, value) {
+  const updatedUnits = setUnitSetting(type, value);
+  updateUnitToggleButtons(updatedUnits);
+  renderCurrentMetrics();
+  renderCurrentCharts();
+}
+
+/**
  * Attaches unobtrusive DOM event listeners.
  */
 function initEventListeners() {
   // Language toggle
-  const langToggleBtn = document.querySelector('.lang-toggle');
+  const langToggleBtn = document.getElementById('lang-toggle-btn') || document.querySelector('.lang-toggle');
   if (langToggleBtn) {
     langToggleBtn.addEventListener('click', handleLanguageToggle);
   }
+
+  // Settings button & modal
+  const settingsBtn = document.getElementById('settings-btn');
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', openSettingsModal);
+  }
+
+  const settingsCloseBtn = document.getElementById('settings-close-btn');
+  if (settingsCloseBtn) {
+    settingsCloseBtn.addEventListener('click', closeSettingsModal);
+  }
+
+  const settingsCloseIcon = document.getElementById('settings-close-icon');
+  if (settingsCloseIcon) {
+    settingsCloseIcon.addEventListener('click', closeSettingsModal);
+  }
+
+  const settingsModal = document.getElementById('settings-modal');
+  if (settingsModal) {
+    settingsModal.addEventListener('click', (e) => {
+      if (e.target === settingsModal) closeSettingsModal();
+    });
+  }
+
+  // Unit option segmented controls
+  document.querySelectorAll('.unit-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const type = btn.dataset.unitType;
+      const val = btn.dataset.unitVal;
+      if (type && val) {
+        handleUnitChange(type, val);
+      }
+    });
+  });
 
   // Time filter buttons
   document.querySelectorAll('.time-btn').forEach(btn => {
@@ -185,9 +233,12 @@ function initEventListeners() {
     });
   }
 
-  // Keyboard accessibility: Close modal on Escape
+  // Keyboard accessibility: Close modals on Escape
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeAlertModal();
+    if (e.key === 'Escape') {
+      closeAlertModal();
+      closeSettingsModal();
+    }
   });
 
   // Tooltip dismiss on pointer down outside canvas
@@ -204,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const initialLang = getCurrentLanguage();
   applyLanguageUI(initialLang);
   setTimeFilterButtons(currentFilter);
+  updateUnitToggleButtons(getUnitSettings());
   initEventListeners();
   loadData();
 });

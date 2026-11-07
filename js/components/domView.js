@@ -4,6 +4,13 @@
 
 import { getTranslations } from '../i18n.js';
 import { decodeWMO, getUVBadge } from '../utils/meteorology.js';
+import {
+  convertTemperature,
+  convertWindSpeed,
+  convertHeight,
+  getUnitSymbol,
+  getUnitSettings
+} from '../utils/units.js';
 
 let activeAlertDetails = '';
 
@@ -45,6 +52,26 @@ export function applyLanguageUI(lang) {
   setEl('modal-alert-title', t.ipmaTitle);
   setEl('alert-details-link', t.details);
   setEl('modal-close-btn', t.close);
+
+  // Settings modal labels
+  setEl('modal-settings-title', t.settingsTitle);
+  setEl('settings-desc', t.settingsDesc);
+  setEl('lbl-setting-temp', t.settingTemp);
+  setEl('lbl-setting-wind', t.settingWind);
+  setEl('lbl-setting-wave', t.settingWave);
+  setEl('lbl-setting-tide', t.settingTide);
+  setEl('settings-info-title', t.refUnitsTitle);
+  setEl('lbl-ref-humidity', t.refHumidity);
+  setEl('lbl-ref-uv', t.refUv);
+  setEl('lbl-ref-period', t.refPeriod);
+  setEl('lbl-ref-datum', t.refDatum);
+  setEl('settings-close-btn', t.done);
+
+  const settingsBtn = document.getElementById('settings-btn');
+  if (settingsBtn) {
+    settingsBtn.setAttribute('aria-label', t.settingsAria);
+    settingsBtn.setAttribute('title', t.settingsAria);
+  }
 }
 
 export function updateCurrentMetricsDisplay({
@@ -96,40 +123,51 @@ export function updateCurrentMetricsDisplay({
     uvBadge.style.color = uvInfo.color;
   }
 
-  // Air Temp
-  const currentTemp = Math.round(weatherData.hourly.temperature_2m?.[idx] ?? 0);
-  const minTemp = Math.round(weatherData.daily?.temperature_2m_min?.[dailyIdx] ?? currentTemp);
-  const maxTemp = Math.round(weatherData.daily?.temperature_2m_max?.[dailyIdx] ?? currentTemp);
+  // Air Temp with unit conversion
+  const tempUnit = getUnitSymbol('temperature');
+  const rawCurrentTemp = weatherData.hourly.temperature_2m?.[idx] ?? 0;
+  const currentTemp = Math.round(convertTemperature(rawCurrentTemp));
+  const rawMin = weatherData.daily?.temperature_2m_min?.[dailyIdx] ?? rawCurrentTemp;
+  const minTemp = Math.round(convertTemperature(rawMin));
+  const rawMax = weatherData.daily?.temperature_2m_max?.[dailyIdx] ?? rawCurrentTemp;
+  const maxTemp = Math.round(convertTemperature(rawMax));
 
   const airTempEl = document.getElementById('air-temp');
   const airMinMaxEl = document.getElementById('air-min-max');
-  if (airTempEl) airTempEl.textContent = `${currentTemp}°C`;
+  if (airTempEl) airTempEl.textContent = `${currentTemp}${tempUnit}`;
   if (airMinMaxEl) airMinMaxEl.textContent = `Min: ${minTemp}° / Max: ${maxTemp}°`;
 
-  // Wind
-  const windSpd = Math.round(weatherData.hourly.wind_speed_10m?.[idx] ?? 0);
-  const windGust = Math.round(weatherData.hourly.wind_gusts_10m?.[idx] ?? 0);
+  // Wind with unit conversion
+  const windUnit = getUnitSymbol('windSpeed');
+  const rawWindSpd = weatherData.hourly.wind_speed_10m?.[idx] ?? 0;
+  const windSpd = Math.round(convertWindSpeed(rawWindSpd));
+  const rawGust = weatherData.hourly.wind_gusts_10m?.[idx] ?? 0;
+  const windGust = Math.round(convertWindSpeed(rawGust));
   const windDir = weatherData.hourly.wind_direction_10m?.[idx] ?? 0;
 
   const windSpdEl = document.getElementById('wind-speed');
   const windGustEl = document.getElementById('wind-gusts');
-  if (windSpdEl) windSpdEl.innerHTML = `${windSpd} <span style="font-size: 0.8rem;">km/h</span>`;
-  if (windGustEl) windGustEl.textContent = `${t.gusts}: ${windGust} km/h`;
+  if (windSpdEl) windSpdEl.innerHTML = `${windSpd} <span style="font-size: 0.8rem;">${windUnit}</span>`;
+  if (windGustEl) windGustEl.textContent = `${t.gusts}: ${windGust} ${windUnit}`;
   setCompass(windDir);
 
-  // Sea Temp & Surf
-  const seaTempVal = (processedSeaTemps && processedSeaTemps[idx] !== undefined)
-    ? processedSeaTemps[idx].toFixed(1)
-    : "18.5";
+  // Sea Temp with unit conversion
+  const rawSeaTemp = (processedSeaTemps && processedSeaTemps[idx] !== undefined)
+    ? processedSeaTemps[idx]
+    : 18.5;
+  const convertedSeaTemp = convertTemperature(rawSeaTemp);
   const seaTempEl = document.getElementById('sea-temp');
-  if (seaTempEl) seaTempEl.textContent = `${seaTempVal}°C`;
+  if (seaTempEl) seaTempEl.textContent = `${convertedSeaTemp.toFixed(1)}${tempUnit}`;
 
+  // Surf Swell with unit conversion
   if (marineData?.hourly) {
-    const waveH = marineData.hourly.wave_height?.[idx] ?? 1.2;
+    const waveUnit = getUnitSymbol('waveHeight');
+    const rawWaveH = marineData.hourly.wave_height?.[idx] ?? 1.2;
+    const waveH = convertHeight(rawWaveH);
     const waveP = marineData.hourly.wave_period?.[idx] ?? 8;
     const surfH = document.getElementById('surf-height');
     const surfP = document.getElementById('surf-period');
-    if (surfH) surfH.textContent = `${Number(waveH).toFixed(1)} m`;
+    if (surfH) surfH.textContent = `${Number(waveH).toFixed(1)} ${waveUnit}`;
     if (surfP) surfP.textContent = `${t.period}: ${Math.round(waveP)} s`;
   }
 }
@@ -180,6 +218,29 @@ export function openAlertModal() {
 export function closeAlertModal() {
   const modal = document.getElementById('alert-modal');
   if (modal) modal.classList.remove('visible');
+}
+
+export function openSettingsModal() {
+  const modal = document.getElementById('settings-modal');
+  if (modal) {
+    updateUnitToggleButtons(getUnitSettings());
+    modal.classList.add('visible');
+  }
+}
+
+export function closeSettingsModal() {
+  const modal = document.getElementById('settings-modal');
+  if (modal) modal.classList.remove('visible');
+}
+
+export function updateUnitToggleButtons(units = getUnitSettings()) {
+  document.querySelectorAll('.unit-opt').forEach(btn => {
+    const type = btn.dataset.unitType;
+    const val = btn.dataset.unitVal;
+    if (type && val) {
+      btn.classList.toggle('active', units[type] === val);
+    }
+  });
 }
 
 export function setTimeFilterButtons(activeFilter) {
