@@ -127,12 +127,12 @@ export const translations = {
       fair: "Fair"
     },
     legend: {
-      airTemp: "Air Temp (°C)",
-      windSpd: "Wind Spd (km/h)",
-      gusts: "Gusts (km/h)",
-      waterTemp: "Water Temp (°C)",
-      surfHeight: "Surf Height (m)",
-      tide: "Tide (m ZH)"
+      airTemp: "Air Temp",
+      windSpd: "Wind Spd",
+      gusts: "Gusts",
+      waterTemp: "Water Temp",
+      surfHeight: "Surf Height",
+      tide: "Tide"
     }
   }
 };
